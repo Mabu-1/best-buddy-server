@@ -84,7 +84,12 @@ app.put('/products/:id', async (req, res) => {
   const result = await userCollection.updateOne(filter, products, options);
   res.send(result);
 })
-
+app.delete('/product/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) }
+  const result = await userCollection.deleteOne(query);
+  res.send(result);
+})
 
 // cleint details
 
