@@ -1,6 +1,7 @@
 
 const express = require("express");
 const cors = require("cors");
+require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 
@@ -15,7 +16,8 @@ const port = process.env.PORT || 5000;
 
 
 
-const uri = "mongodb+srv://romanami652:2XeR0WwmJ9JPG0N8@cluster0.wgbfr5a.mongodb.net/?retryWrites=true&w=majority";
+// const uri = "mongodb+srv://romanami652:2XeR0WwmJ9JPG0N8@cluster0.wgbfr5a.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wgbfr5a.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -33,6 +35,7 @@ async function run() {
     // Send a ping to confirm a successful connection
 
     const userCollection = client.db("userDB").collection("products");
+    const clientCollection = client.db("userDB").collection("client");
 
 
     
@@ -81,6 +84,25 @@ app.put('/products/:id', async (req, res) => {
   const result = await userCollection.updateOne(filter, products, options);
   res.send(result);
 })
+
+
+// cleint details
+
+app.get("/client", async (req, res) => {
+  const result = await clientCollection.find().toArray();
+  console.log(result);
+  res.send(result);
+});
+app.post("/client", async (req, res) => {
+  const client = req.body;
+  console.log("client", client);
+  const result = await clientCollection.insertOne(client);
+  console.log(result);
+  res.send(result);
+});
+
+
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
