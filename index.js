@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 
 // romanami652
 //2XeR0WwmJ9JPG0N8
@@ -32,8 +32,55 @@ async function run() {
     await client.connect();
     // Send a ping to confirm a successful connection
 
-    const userCollection = client.db("userDB").collection("ford");
+    const userCollection = client.db("userDB").collection("products");
 
+
+    
+    app.get("/products", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      console.log(result);
+      res.send(result);
+    });
+
+// post single data endpoint
+app.post("/products", async (req, res) => {
+    const user = req.body;
+    console.log("user", user);
+    const result = await userCollection.insertOne(user);
+    console.log(result);
+    res.send(result);
+  });
+  app.get('/products/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) }
+    const result = await userCollection.findOne(query);
+    res.send(result);
+})
+
+
+app.put('/products/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) }
+  const options = { upsert: true };
+  const updatedProduct = req.body;
+
+  const products = {
+      $set: {
+
+          image: updatedProduct.image,
+          name: updatedProduct.name,
+          brand: updatedProduct.brand,
+          type: updatedProduct.type,
+          price: updatedProduct.price,
+          description: updatedProduct.description,
+          rating: updatedProduct.rating,
+         
+      }
+  }
+
+  const result = await userCollection.updateOne(filter, products, options);
+  res.send(result);
+})
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
